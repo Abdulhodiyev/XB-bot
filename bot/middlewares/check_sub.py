@@ -5,13 +5,11 @@ from core.config import CHANNEL_USERNAME
 
 logger = logging.getLogger(__name__)
 
+
 class CheckSubscriptionMiddleware(BaseMiddleware):
     async def __call__(self, handler, event, data):
         state = data.get("state")
         if state and await state.get_state():
-            return await handler(event, data)
-
-        if isinstance(event, CallbackQuery) and event.data == "check_sub":
             return await handler(event, data)
 
         if isinstance(event, Message) and event.media_group_id:
@@ -31,7 +29,7 @@ class CheckSubscriptionMiddleware(BaseMiddleware):
         except Exception as e:
             logger.error(f"Telegram API Obuna xatosi: {e}")
 
-        # Agar obunasi bo'lsa, handlerni ishga tushiramiz (Endi handler xatosi qorovulga aralashmaydi!)
+        # Agar obunasi bo'lsa, handlerni ishga tushiramiz
         if is_subscribed:
             return await handler(event, data)
 
@@ -42,9 +40,14 @@ class CheckSubscriptionMiddleware(BaseMiddleware):
             [InlineKeyboardButton(text="✅ Tasdiqlash", callback_data="check_sub")]
         ])
 
-        if isinstance(event, Message):
+        if isinstance(event, CallbackQuery):
+            if event.data == "check_sub":
+                # Agar obuna bo'lmay turib tasdiqlashni bossa - ekranga Alert chiqaramiz!
+                await event.answer("⚠️ Hali kanalga obuna bo'lmagansiz!", show_alert=True)
+            else:
+                await event.message.answer(text, reply_markup=markup, parse_mode="HTML")
+                await event.answer()
+        elif isinstance(event, Message):
             await event.answer(text, reply_markup=markup, parse_mode="HTML")
-        elif isinstance(event, CallbackQuery):
-            await event.message.answer(text, reply_markup=markup, parse_mode="HTML")
-            await event.answer()
+
         return

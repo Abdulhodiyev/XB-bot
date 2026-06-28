@@ -10,5 +10,5 @@ ADMIN_GROUP_ID = int(os.getenv("ADMIN_GROUP_ID", 0))
 # Kelajakda botni boshqaradigan adminlar ro'yxati (xotira tejamkorligi uchun tuple ishlatamiz)
 ADMINS = (927240176, 87654321)
 
-CHANNEL_USERNAME = "@BugungisiBoshqacha"
-CHANNEL_ID=-1001263501416
+CHANNEL_USERNAME = "@XonobodBugun"
+CHANNEL_ID=-1001147438003
